@@ -1,7 +1,11 @@
-import pytest
+
 import pandas as pd
-from datetime import datetime, timedelta
-from src.transforms import filter_grt_spmt_report, filter_overdue_and_six_months, populate_working_due_date
+import pytest
+
+from src.transforms import (
+    filter_grt_spmt_report,
+    populate_working_due_date,
+)
 
 
 @pytest.mark.skip(reason="Pending transformation logic implementation")
@@ -13,7 +17,7 @@ def test_completed_commitments_removal():
         "Country Name": ["United States", "United States", "France"],
         "Working Due Date": [pd.Timestamp.now()] * 3
     })
-    
+
     cleaned = filter_grt_spmt_report(raw_data)
     assert "Completed" not in cleaned["Commitment Lifecycle State"].values
 
@@ -27,7 +31,7 @@ def test_country_filter_for_submitted_state():
         "Country Name": ["United States", "France"],
         "Working Due Date": [pd.Timestamp.now()] * 2
     })
-    
+
     cleaned = filter_grt_spmt_report(raw_data)
     assert len(cleaned) == 1
     assert cleaned.iloc[0]["Country Name"] == "United States"
@@ -40,7 +44,7 @@ def test_working_due_date_fallback():
         "Commitment Due Date": [pd.Timestamp("2026-11-01"), pd.Timestamp("2026-12-01")],
         "Working Due Date": [None, pd.Timestamp("2026-12-15")]
     })
-    
+
     result = populate_working_due_date(raw_data)
     assert result.loc[0, "Working Due Date"] == pd.Timestamp("2026-11-01")
     assert result.loc[1, "Working Due Date"] == pd.Timestamp("2026-12-15")

@@ -1,6 +1,5 @@
 """Data transformation and business logic for Merck Commitment Reports."""
 
-from typing import Any
 import pandas as pd
 
 
