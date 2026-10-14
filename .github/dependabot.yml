@@ -1,0 +1,9 @@
+# automatically receive pull requests when dependencies like openpyxl, pandas, or streamlit release security patches
+
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
