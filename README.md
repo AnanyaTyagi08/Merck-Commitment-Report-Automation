@@ -108,7 +108,3 @@ pip-audit
 3. **Sensitive / Sponsor Documents**:
    - Never commit raw sponsor data, client spreadsheets, or proprietary SOPs into Git.
    - Use the `resources/` folder for local reference materials—it is permanently ignored by `.gitignore`.
-
-
-
-# comment to verify ci setup
