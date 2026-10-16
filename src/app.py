@@ -5,6 +5,7 @@ import streamlit as st
 
 from src.transforms import populate_working_due_date
 
+
 def main() -> None:
     """Run the Streamlit application."""
     st.set_page_config(
