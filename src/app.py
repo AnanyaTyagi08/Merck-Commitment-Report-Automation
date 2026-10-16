@@ -1,5 +1,7 @@
 """Streamlit user interface and entry point for Merck Commitment Report Automation."""
 
+import io
+
 import pandas as pd
 import streamlit as st
 
@@ -23,9 +25,22 @@ def main() -> None:
             raw_df = pd.read_excel(uploaded_file, sheet_name='Export', header=1)
 
             #transformation function executing the date changes
-            populate_working_due_date(raw_df)
+            cleaned_df = populate_working_due_date(raw_df)
 
             st.success("File processed successfully!")
+
+            #writing  cleaned dataframe to an in-memory buffer so the user can download it
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                cleaned_df.to_excel(writer, index=False)
+
+            #temporary download button to check transformed data
+            st.download_button(
+                label="Download Cleaned Excel File",
+                data=buffer.getvalue(),
+                file_name="Cleaned_Commitments.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
 
         except Exception as e:
             st.error(f"Error processing file: {e}")
