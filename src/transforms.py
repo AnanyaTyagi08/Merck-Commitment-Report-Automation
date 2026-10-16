@@ -15,5 +15,7 @@ def filter_overdue_and_six_months(df: pd.DataFrame) -> pd.DataFrame:
 
 def populate_working_due_date(df: pd.DataFrame) -> pd.DataFrame:
     """Populate Working Due Date from Commitment Due Date if missing."""
-    raise NotImplementedError("Pending implementation")
-
+    #creating copy to avoid altering the original dataframe unexpectedly
+    df = df.copy()
+    df["Working Due Date"] = df["Working Due Date"].fillna(df["Commitment Due Date"])
+    return df
