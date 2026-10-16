@@ -36,8 +36,7 @@ def test_country_filter_for_submitted_state():
     assert len(cleaned) == 1
     assert cleaned.iloc[0]["Country Name"] == "United States"
 
-
-@pytest.mark.skip(reason="Pending transformation logic implementation")
+#transformation logic implemented
 def test_working_due_date_fallback():
     """Verify Working Due Date copies from Commitment Due Date when blank."""
     raw_data = pd.DataFrame({
