@@ -6,6 +6,7 @@ import pytest
 
 from src.transforms import (
     filter_grt_spmt_report,
+    filter_three_year_lookback,
     populate_working_due_date,
 )
 
@@ -85,3 +86,32 @@ def test_integration_excel_ingestion_and_date_population():
     #verifying the blank date was populated correctly
     assert cleaned_df.loc[0, "Working Due Date"] == pd.Timestamp("2026-11-01")
     assert cleaned_df.loc[1, "Working Due Date"] == pd.Timestamp("2026-12-15")
+
+
+#verifying 3-year lookback filter and ascending sort (MCRAT-27)
+def test_three_year_lookback_and_sort():
+    """Old and blank dates are removed, the rest sorted oldest first."""
+    raw_data = pd.DataFrame({
+        "Commitment ID": ["A", "B", "C", "D"],
+        "Working Due Date": [
+            pd.Timestamp("2027-01-15"),
+            pd.Timestamp("2020-05-01"),
+            pd.Timestamp("2024-03-10"),
+            None,
+        ],
+    })
+
+    result = filter_three_year_lookback(raw_data, today=pd.Timestamp("2026-10-18"))
+    assert list(result["Commitment ID"]) == ["C", "A"]
+
+
+#verifying a date exactly on the cutoff is kept
+def test_three_year_lookback_boundary():
+    """A date exactly 3 years back is kept, one day earlier is removed."""
+    raw_data = pd.DataFrame({
+        "Commitment ID": ["on_cutoff", "day_before"],
+        "Working Due Date": [pd.Timestamp("2023-10-18"), pd.Timestamp("2023-10-17")],
+    })
+
+    result = filter_three_year_lookback(raw_data, today=pd.Timestamp("2026-10-18"))
+    assert list(result["Commitment ID"]) == ["on_cutoff"]
