@@ -25,3 +25,17 @@ def populate_working_due_date(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df["Working Due Date"] = df["Working Due Date"].fillna(df["Commitment Due Date"])
     return df
+
+
+def filter_three_year_lookback(
+    df: pd.DataFrame, today: pd.Timestamp | None = None
+) -> pd.DataFrame:
+    """Keep records with Working Due Date in the last 3 years, sorted ascending."""
+    #creating copy to avoid altering the original dataframe unexpectedly
+    df = df.copy()
+    df["Working Due Date"] = pd.to_datetime(df["Working Due Date"], errors="coerce")
+    if today is None:
+        today = pd.Timestamp.today()
+    cutoff = today.normalize() - pd.DateOffset(years=3)
+    df = df[df["Working Due Date"] >= cutoff]
+    return df.sort_values("Working Due Date").reset_index(drop=True)
