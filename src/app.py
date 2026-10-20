@@ -5,7 +5,11 @@ import io
 import pandas as pd
 import streamlit as st
 
-from src.transforms import filter_three_year_lookback, populate_working_due_date
+from src.transforms import (
+    filter_grt_spmt_report,
+    filter_three_year_lookback,
+    populate_working_due_date,
+)
 
 
 def main() -> None:
@@ -26,6 +30,8 @@ def main() -> None:
 
             #transformation function executing the date changes
             cleaned_df = populate_working_due_date(raw_df)
+            #filter completed commitments and non-US submitted rows
+            cleaned_df = filter_grt_spmt_report(cleaned_df)
 
             #filtering to 3-year lookback and sorting by Working Due Date
             cleaned_df = filter_three_year_lookback(cleaned_df)
