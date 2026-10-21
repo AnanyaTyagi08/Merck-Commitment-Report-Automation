@@ -4,7 +4,7 @@ from pathlib import Path
 
 from openpyxl import Workbook
 
-from src.excel_generator import apply_font_color, apply_sheet_layout
+from src.excel_generator import apply_sheet_layout
 
 
 def main():
@@ -18,12 +18,7 @@ def main():
     for number in range(1, 51):
         ws.append([f"TEST-{number:03}", "Green", "2026-10-01"])
 
-    ws["B3"] = "Red"
-    ws["B4"] = "Purple"
-
     apply_sheet_layout(ws, header_row=2)
-    apply_font_color(ws, ["B3", "C3"], "red")
-    apply_font_color(ws, ["B4", "C4"], "purple")
 
     ws.column_dimensions["A"].width = 55
     ws.column_dimensions["B"].width = 22
