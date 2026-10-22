@@ -39,7 +39,7 @@ Merck-Commitment-Report-Automation/
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
-- **Python 3.10+** (Python 3.10 is used in the CI environment)
+- **Python 3.11+** (Python 3.11 is used in CI; Pillow 13 requires Python 3.11+)
 - **Git**
 
 ### 2. Local Setup

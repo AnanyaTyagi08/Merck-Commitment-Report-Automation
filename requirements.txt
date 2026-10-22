@@ -1,3 +1,5 @@
 pandas>=2.0.0
 openpyxl>=3.1.0
-streamlit>=1.30.0
+streamlit>=1.66.1
+# Security floor for Streamlit's image dependency; requires Python >=3.11.
+pillow>=13.0.0

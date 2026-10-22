@@ -5,6 +5,7 @@ import io
 import pandas as pd
 import streamlit as st
 
+from src.excel_generator import apply_sheet_layout
 from src.transforms import (
     filter_grt_spmt_report,
     filter_three_year_lookback,
@@ -40,8 +41,10 @@ def main() -> None:
 
             #writing  cleaned dataframe to an in-memory buffer so the user can download it
             buffer = io.BytesIO()
-            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-                cleaned_df.to_excel(writer, index=False)
+            with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+                 cleaned_df.to_excel(writer, index=False, sheet_name="GRT-SPMT")
+                 ws = writer.sheets["GRT-SPMT"]
+                 apply_sheet_layout(ws, header_row=1)
 
             #temporary download button to check transformed data
             st.download_button(
