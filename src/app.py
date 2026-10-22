@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from src.excel_generator import apply_sheet_layout
+from src.report_filenames import get_report_filenames
 from src.transforms import (
     filter_grt_spmt_report,
     filter_three_year_lookback,
@@ -65,7 +66,7 @@ def main() -> None:
             st.download_button(
                 label="Download Cleaned Excel File",
                 data=buffer.getvalue(),
-                file_name="Cleaned_Commitments.xlsx",
+                file_name=get_report_filenames()["grt_spmt"],
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
