@@ -1,6 +1,15 @@
 from datetime import date
+from unittest.mock import patch
 
 from src.report_filenames import get_report_filenames
+
+
+def test_default_date_uses_today():
+    today = date(2026, 10, 22)
+    with patch("src.report_filenames.date") as mock_date:
+        mock_date.today.return_value = today
+        assert get_report_filenames() == get_report_filenames(today)
+        mock_date.today.assert_called_once_with()
 
 
 def test_exact_report_filenames():
