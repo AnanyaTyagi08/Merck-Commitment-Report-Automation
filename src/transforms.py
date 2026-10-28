@@ -13,10 +13,26 @@ def filter_grt_spmt_report(df: pd.DataFrame) -> pd.DataFrame:
 
     return df.loc[not_completed & ~submitted_outside_us].copy()
 
-
-def filter_overdue_and_six_months(df: pd.DataFrame) -> pd.DataFrame:
+def filter_overdue_and_six_months(
+    df: pd.DataFrame, today: pd.Timestamp | None = None
+) -> pd.DataFrame:
     """Filter records overdue or due within the next six months."""
-    raise NotImplementedError("Pending implementation")
+    df = df.copy()
+    if today is None:
+        today = pd.Timestamp.today()
+    today = today.normalize()
+    six_months_out = today + pd.DateOffset(months=6)
+
+    #Column L: Ongoing status
+    is_ongoing = df["Commitment Lifecycle State"].str.strip() == "Ongoing"
+    
+    #Column R: Overdue or due within 6 months
+    df["Working Due Date"] = pd.to_datetime(df["Working Due Date"], errors="coerce")
+    is_overdue_or_upcoming = (df["Working Due Date"] < today) | (
+        (df["Working Due Date"] >= today) & (df["Working Due Date"] <= six_months_out)
+    )
+    
+    return df[is_ongoing & is_overdue_or_upcoming].copy()
 
 
 def populate_working_due_date(df: pd.DataFrame) -> pd.DataFrame:
