@@ -25,13 +25,13 @@ def filter_overdue_and_six_months(
 
     #Column L: Ongoing status
     is_ongoing = df["Commitment Lifecycle State"].str.strip() == "Ongoing"
-    
+
     #Column R: Overdue or due within 6 months
     df["Working Due Date"] = pd.to_datetime(df["Working Due Date"], errors="coerce")
     is_overdue_or_upcoming = (df["Working Due Date"] < today) | (
         (df["Working Due Date"] >= today) & (df["Working Due Date"] <= six_months_out)
     )
-    
+
     return df[is_ongoing & is_overdue_or_upcoming].copy()
 
 

@@ -56,16 +56,16 @@ def highlight_overdue_rows(ws: Worksheet, df: pd.DataFrame, header_row: int = 1)
     """Apply red font to all cells in rows where the Working Due Date is overdue."""
     today = pd.Timestamp.today().normalize()
     red_cells = []
-    
+
     #enumeration starts at header_row + 1 because Excel is 1-indexed and has a header
     for row_idx, (_, row) in enumerate(df.iterrows(), start=header_row + 1):
         date_val = pd.to_datetime(row.get("Working Due Date"), errors="coerce")
-        
+
         if pd.notna(date_val) and date_val < today:
             #grabbing every column's letter for this specific row index
             for col_idx in range(1, len(df.columns) + 1):
                 col_letter = get_column_letter(col_idx)
                 red_cells.append(f"{col_letter}{row_idx}")
-    
+
     if red_cells:
         apply_font_color(ws, red_cells, "red")
