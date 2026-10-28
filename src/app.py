@@ -5,15 +5,14 @@ import io
 import pandas as pd
 import streamlit as st
 
-from src.excel_generator import highlight_overdue_rows
-from src.excel_generator import apply_sheet_layout
-from src.report_filenames import get_report_filenames
+from src.excel_generator import apply_sheet_layout, highlight_overdue_rows
 from src.transforms import (
     filter_grt_spmt_report,
+    filter_overdue_and_six_months,
     filter_three_year_lookback,
     populate_working_due_date,
-    filter_overdue_and_six_months
 )
+
 
 def main() -> None:
     """Run the Streamlit application."""
@@ -43,7 +42,7 @@ def main() -> None:
     if uploaded_file and uploaded_file.name != st.session_state.get("last_uploaded_file"):
         st.session_state.clear()
         st.session_state["last_uploaded_file"] = uploaded_file.name
-        
+
     if st.button("Generate Report", type="primary", disabled=uploaded_file is None):
         try:
             with st.spinner("Processing spreadsheet..."):
@@ -64,7 +63,7 @@ def main() -> None:
                     cleaned_df.to_excel(writer, index=False, sheet_name="GRT-SPMT")
                     ws = writer.sheets["GRT-SPMT"]
                     apply_sheet_layout(ws, header_row=1)
-                    
+
                 #ensuring that only Report 2 gets highlighted red rows as per Task-12 requirements
                 report_2_df = filter_overdue_and_six_months(cleaned_df)
 
@@ -74,14 +73,15 @@ def main() -> None:
                     ws2 = writer.sheets["Ongoing-Upcoming"]
                     apply_sheet_layout(ws2, header_row=1)
                     highlight_overdue_rows(ws2, report_2_df, header_row=1)
-                    
-                    #saving to session state so that either download button can be clicked without having to click 'Generate Report' again
+
+                    #saving to session state so that either download button
+                    #can be clicked without having to click 'Generate Report' again
                 st.session_state["report_1_data"] = buffer.getvalue()
                 st.session_state["report_2_data"] = buffer_2.getvalue()
 
         except Exception as e:
             st.error(f"Error processing file: {e}")
-            
+
         #Modified: Moved outside the button block so they survive reruns
     if "report_1_data" in st.session_state and "report_2_data" in st.session_state:
         st.success("File processed successfully!")
@@ -89,7 +89,7 @@ def main() -> None:
         #Added for TASK-12: Dual Download Buttons
         current_month_year = pd.Timestamp.now().strftime("%b%Y")
         col1, col2 = st.columns(2)
-        
+
         with col1:
             #temporary download button to check transformed data
             st.download_button(
@@ -103,7 +103,10 @@ def main() -> None:
             st.download_button(
                 label="Download Report 2",
                 data=st.session_state["report_2_data"],
-                file_name=f"Commitments Overdue and due in the next 6 months-{current_month_year}.xlsx",
+                file_name=(
+                        "Commitments Overdue and due in the "
+                        f"next 6 months-{current_month_year}.xlsx"
+                    ),
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
