@@ -12,6 +12,7 @@ from src.transforms import (
     filter_three_year_lookback,
     populate_working_due_date,
 )
+from src.ui_styles import CUSTOM_CSS, format_file_size
 
 
 def main() -> None:
@@ -22,21 +23,13 @@ def main() -> None:
     )
     st.title("Merck Commitment Report Automation")
     st.write("Upload raw commitment reports to automate filtering and formatting.")
-    st.markdown(
-        """
-        <style>
-        button[kind="primary"], button[kind="primary"]:hover,
-        button[kind="primary"]:focus, button[kind="primary"]:active {
-            background-color: #00857C;
-            border-color: #00857C;
-            color: white;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
+    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
     uploaded_file = st.file_uploader("Upload VQ - Commitment Query Excel file", type=["xlsx"])
+    if uploaded_file is None:
+        st.info("No file uploaded yet.")
+    else:
+        st.success(f"File uploaded: {uploaded_file.name}")
+        st.caption(f"Size: {format_file_size(uploaded_file.size)}")
 
     if st.button("Generate Report", type="primary", disabled=uploaded_file is None):
         try:
