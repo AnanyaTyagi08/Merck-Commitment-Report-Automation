@@ -91,7 +91,7 @@ def main() -> None:
                 file_name="Cleaned_Commitments.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-            
+
         with col2:
             #second download button
             st.download_button(
