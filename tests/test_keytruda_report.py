@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 from openpyxl import load_workbook
 
 from src.excel_generator import build_keytruda_workbook
@@ -90,3 +91,39 @@ def test_keytruda_excel_export(tmp_path):
         assert pd.Timestamp(ws["B3"].value) == pd.Timestamp("2026-12-31")
     finally:
         wb.close()
+def test_keytruda_warns_about_unusable_due_dates():
+    """Report missing and invalid dates after the due-date fallback."""
+    df = pd.DataFrame(
+        {
+            "Primary Product Family": ["pembrolizumab"] * 4,
+            "Commitment Lifecycle State": ["Ongoing"] * 4,
+            "Completed State Qualifier": [None] * 4,
+            "Country Name": ["United States"] * 4,
+            "Working Due Date": [
+                "2026-10-15",
+                None,
+                "not-a-date",
+                None,
+            ],
+            "Commitment Due Date": [
+                None,
+                None,
+                None,
+                "2026-11-15",
+            ],
+        }
+    )
+
+    with pytest.warns(
+        UserWarning,
+        match="1 missing and 1 invalid",
+    ):
+        result = filter_keytruda_report(
+            df,
+            report_date=pd.Timestamp("2026-09-01"),
+        )
+
+    assert result["Working Due Date"].tolist() == [
+        pd.Timestamp("2026-10-15"),
+        pd.Timestamp("2026-11-15"),
+    ]
