@@ -86,7 +86,7 @@ def build_keytruda_workbook(
 
         ws = writer.sheets[sheet_name]
         ws["A1"] = (
-            f"Keytruda commitments — "
+            f"Keytruda commitments - "
             f"report date {report_date:%d-%b-%Y}"
         )
 
@@ -100,3 +100,31 @@ def build_keytruda_workbook(
             )
 
     return output_path
+
+
+def highlight_overdue_rows(
+    ws: Worksheet,
+    df: pd.DataFrame,
+    header_row: int = 1,
+) -> None:
+    """Apply red font to all cells in rows with an overdue Working Due Date."""
+    today = pd.Timestamp.today().normalize()
+    red_cells = []
+
+    # Data starts immediately after the worksheet header.
+    for row_idx, (_, row) in enumerate(
+        df.iterrows(),
+        start=header_row + 1,
+    ):
+        date_val = pd.to_datetime(
+            row.get("Working Due Date"),
+            errors="coerce",
+        )
+
+        if pd.notna(date_val) and date_val < today:
+            for col_idx in range(1, len(df.columns) + 1):
+                col_letter = get_column_letter(col_idx)
+                red_cells.append(f"{col_letter}{row_idx}")
+
+    if red_cells:
+        apply_font_color(ws, red_cells, "red")
