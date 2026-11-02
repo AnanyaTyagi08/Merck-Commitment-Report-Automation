@@ -88,7 +88,7 @@ def main() -> None:
             st.download_button(
                 label="Download Report",
                 data=st.session_state["report_1_data"],
-                file_name="Cleaned_GRT_SPMT_Report.xlsx",
+                file_name="Cleaned_Commitments.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
             
