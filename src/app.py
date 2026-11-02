@@ -84,22 +84,23 @@ def main() -> None:
         col1, col2 = st.columns(2)
 
         with col1:
-            #temporary download button to check transformed data
+            #first download button to check transformed data
             st.download_button(
-                label="Download Cleaned Excel File",
+                label="Download Report",
                 data=st.session_state["report_1_data"],
-                file_name="Cleaned_Commitments.xlsx",
+                file_name="Cleaned_GRT_SPMT_Report.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-            #second download button
+            
         with col2:
+            #second download button
             st.download_button(
-                label="Download Report 2",
+                label="Download Report 2 (Ongoing & Overdue)",
                 data=st.session_state["report_2_data"],
                 file_name=(
-                        "Commitments Overdue and due in the "
-                        f"next 6 months-{current_month_year}.xlsx"
-                    ),
+                    "Commitments Overdue and due in the "
+                    f"next 6 months-{current_month_year}.xlsx"
+                ),
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
