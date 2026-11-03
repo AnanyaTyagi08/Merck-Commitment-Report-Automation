@@ -10,21 +10,8 @@ from src.transforms import (
 )
 
 
-def test_completed_commitments_removal():
-    """Ensure completed records are stripped out completely (RPP-200-ER03 Section 3.1.2)."""
-    raw_data = pd.DataFrame({
-        "Commitment Lifecycle State": ["Completed", "Active", "Ongoing"],
-        "Completed State Qualifier": ["Submitted", None, None],
-        "Country Name": ["United States", "United States", "France"],
-        "Working Due Date": [pd.Timestamp.now()] * 3
-    })
-
-    cleaned = filter_grt_spmt_report(raw_data)
-    assert "Completed" not in cleaned["Commitment Lifecycle State"].values
-
-
-def test_country_filter_for_submitted_state():
-    """Ensure only US records remain if Completed State Qualifier is 'Submitted'."""
+def test_country_filter_for_submitted_active_records():
+    """Non-US Active records with a Submitted qualifier are removed."""
     raw_data = pd.DataFrame({
         "Commitment Lifecycle State": ["Active", "Active"],
         "Completed State Qualifier": ["Submitted", "Submitted"],
@@ -38,7 +25,7 @@ def test_country_filter_for_submitted_state():
 
 
 def test_non_submitted_non_us_records_are_retained():
-    """Ensure the country restriction only applies to records marked Submitted."""
+    """Non-US Active records stay when their qualifier is not Submitted."""
     raw_data = pd.DataFrame({
         "Commitment Lifecycle State": ["Active", "Active", "Completed"],
         "Completed State Qualifier": ["Pending", "Submitted", "Pending"],
@@ -51,6 +38,43 @@ def test_non_submitted_non_us_records_are_retained():
     assert len(cleaned) == 1
     assert cleaned.iloc[0]["Completed State Qualifier"] == "Pending"
     assert cleaned.iloc[0]["Country Name"] == "France"
+
+
+def test_grt_spmt_retains_non_us_ongoing_commitments():
+    """All Ongoing rows survive the status filter, including non-US Submitted rows."""
+    raw_data = pd.DataFrame({
+        "Commitment ID": ["FR", "CA", "JP", "submitted", "completed", "US"],
+        "Commitment Lifecycle State": [
+            "Ongoing", "Ongoing", "Ongoing", "Ongoing", "Completed", "Ongoing",
+        ],
+        "Completed State Qualifier": ["Pending", None, "", "Submitted", None, "Submitted"],
+        "Country Name": ["France", "Canada", "Japan", "France", "Canada", "United States"],
+        "Working Due Date": [None] * 6,
+        "Commitment Due Date": [pd.Timestamp("2026-12-01")] * 6,
+    })
+    original = raw_data.copy(deep=True)
+
+    result = populate_working_due_date(raw_data)
+    result = filter_grt_spmt_report(result)
+    result = filter_three_year_lookback(result, today=pd.Timestamp("2026-11-02"))
+
+    assert result["Commitment ID"].tolist() == ["FR", "CA", "JP", "submitted", "US"]
+    pd.testing.assert_frame_equal(raw_data, original)
+
+
+def test_completed_rows_removed_for_all_countries_and_qualifiers():
+    """Completed lifecycle state excludes both US and non-US commitments."""
+    raw_data = pd.DataFrame([
+        {
+            "Commitment Lifecycle State": "Completed",
+            "Country Name": country,
+            "Completed State Qualifier": qualifier,
+        }
+        for country in ["United States", "United States of America", "France"]
+        for qualifier in ["Submitted", "Pending", None, ""]
+    ])
+
+    assert filter_grt_spmt_report(raw_data).empty
 
 
 #date population unit tests
