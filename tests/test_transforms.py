@@ -9,6 +9,7 @@ from src.transforms import (
     populate_working_due_date,
 )
 
+
 def test_completed_commitments_removal():
     """Ensure completed records are stripped out completely (RPP-200-ER03 Section 3.1.2)."""
     raw_data = pd.DataFrame({
