@@ -9,6 +9,17 @@ from src.transforms import (
     populate_working_due_date,
 )
 
+def test_completed_commitments_removal():
+    """Ensure completed records are stripped out completely (RPP-200-ER03 Section 3.1.2)."""
+    raw_data = pd.DataFrame({
+        "Commitment Lifecycle State": ["Completed", "Active", "Ongoing"],
+        "Completed State Qualifier": ["Submitted", None, None],
+        "Country Name": ["United States", "United States", "France"],
+        "Working Due Date": [pd.Timestamp.now()] * 3
+    })
+
+    cleaned = filter_grt_spmt_report(raw_data)
+    assert "Completed" not in cleaned["Commitment Lifecycle State"].values
 
 def test_country_filter_for_submitted_active_records():
     """Non-US Active records with a Submitted qualifier are removed."""
