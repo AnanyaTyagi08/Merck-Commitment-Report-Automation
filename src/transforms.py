@@ -6,9 +6,9 @@ import pandas as pd
 
 
 def filter_grt_spmt_report(df: pd.DataFrame) -> pd.DataFrame:
-    """Filter records for GRT / SPMT reports per RPP-200-ER03 rules."""
+    """Remove Completed records and retain all Ongoing rows regardless of country."""
     not_completed = df["Commitment Lifecycle State"].ne("Completed")
-
+    is_ongoing = df["Commitment Lifecycle State"].eq("Ongoing")
     submitted_outside_us = (
         df["Completed State Qualifier"].eq("Submitted")
         & ~df["Country Name"].isin(
@@ -16,7 +16,7 @@ def filter_grt_spmt_report(df: pd.DataFrame) -> pd.DataFrame:
         )
     )
 
-    return df.loc[not_completed & ~submitted_outside_us].copy()
+    return df.loc[not_completed & (is_ongoing | ~submitted_outside_us)].copy()
 
 def filter_overdue_and_six_months(
     df: pd.DataFrame, today: pd.Timestamp | None = None
