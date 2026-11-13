@@ -20,9 +20,8 @@ def apply_sheet_layout(
     ws.freeze_panes = f"A{header_row + 1}"
 
     last_column = get_column_letter(ws.max_column)
-    ws.auto_filter.ref = (
-        f"A{header_row}:{last_column}{ws.max_row}"
-    )
+    ws.auto_filter.ref = f"A{header_row}:{last_column}{ws.max_row}"
+
 
 def apply_font_color(
     ws: Worksheet,
@@ -44,6 +43,7 @@ def apply_font_color(
         updated_font.color = colors[color]
         cell.font = updated_font
 
+
 def build_grt_spmt_workbook(
     df: pd.DataFrame,
     output_path: Union[str, Path],
@@ -51,18 +51,19 @@ def build_grt_spmt_workbook(
     """Generate the formatted Excel workbook with required tabs and views."""
     raise NotImplementedError("Pending implementation")
 
-#implementing red overdue row labeling function for Task-12
+
+# implementing red overdue row labeling function for Task-12
 def highlight_overdue_rows(ws: Worksheet, df: pd.DataFrame, header_row: int = 1) -> None:
     """Apply red font to all cells in rows where the Working Due Date is overdue."""
     today = pd.Timestamp.today().normalize()
     red_cells = []
 
-    #enumeration starts at header_row + 1 because Excel is 1-indexed and has a header
+    # enumeration starts at header_row + 1 because Excel is 1-indexed and has a header
     for row_idx, (_, row) in enumerate(df.iterrows(), start=header_row + 1):
         date_val = pd.to_datetime(row.get("Working Due Date"), errors="coerce")
 
         if pd.notna(date_val) and date_val < today:
-            #grabbing every column's letter for this specific row index
+            # grabbing every column's letter for this specific row index
             for col_idx in range(1, len(df.columns) + 1):
                 col_letter = get_column_letter(col_idx)
                 red_cells.append(f"{col_letter}{row_idx}")

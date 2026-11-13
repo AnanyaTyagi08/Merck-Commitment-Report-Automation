@@ -1,6 +1,6 @@
 """Custom styling and upload display helpers for the Streamlit UI."""
 
-#Merck teal for all action buttons, with a darker shade for hover/click
+# Merck teal for all action buttons, with a darker shade for hover/click
 CUSTOM_CSS = """
 <style>
 button[kind="primary"],
