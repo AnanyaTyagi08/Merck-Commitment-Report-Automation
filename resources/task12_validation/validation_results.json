@@ -1,0 +1,68 @@
+{
+  "code_commit": "623742bf9894bfc3a4bc006e9b384b233a4cb19f",
+  "generated": {
+    "filename": "Commitments Overdue and due in the next 6 months-Nov2026.xlsx",
+    "sha256": "3cea9940bd637abd98c601980088e831a2833c38a8edab7414d484b9c24ea8ee",
+    "worksheets": [
+      "Ongoing-Upcoming"
+    ],
+    "records": 220,
+    "columns": 30,
+    "freeze_panes": "A2",
+    "auto_filter": "A1:AD221",
+    "all_headers_bold": false,
+    "lifecycle_states": {
+      "Ongoing": 220
+    },
+    "missing_or_invalid_dates": 0,
+    "dates_sorted_ascending": true,
+    "due_date_months": {
+      "2026-08": 2,
+      "2026-09": 5,
+      "2026-10": 21,
+      "2026-11": 28,
+      "2026-12": 72,
+      "2027-01": 11,
+      "2027-02": 16,
+      "2027-03": 38,
+      "2027-04": 24,
+      "2027-05": 3
+    }
+  },
+  "baseline": {
+    "filename": "Sample Commitments Overdue and due in the next 6 months-01Sep26.xlsx",
+    "sha256": "b82f77a7c67ad1750f21a465ae235215e2dbbe7829308c1f62603e990b0fd418",
+    "worksheets": [
+      "Coverpage",
+      "Overdue_due 6 months Sep 2026",
+      "Late"
+    ],
+    "records": 181,
+    "columns": 30,
+    "freeze_panes": null,
+    "auto_filter": "A2:AD183",
+    "all_headers_bold": true,
+    "lifecycle_states": {
+      "Ongoing": 179,
+      "Delayed": 2
+    },
+    "missing_or_invalid_dates": 0,
+    "dates_sorted_ascending": true,
+    "due_date_months": {
+      "2026-08": 3,
+      "2026-09": 27,
+      "2026-10": 22,
+      "2026-11": 21,
+      "2026-12": 80,
+      "2027-01": 11,
+      "2027-02": 15,
+      "2028-01": 2
+    }
+  },
+  "row_comparison": {
+    "comparison": "Exact values across columns B onward; IDs excluded",
+    "exact_matching_rows": 0,
+    "generated_only_rows": 220,
+    "baseline_only_rows": 181
+  }
+}

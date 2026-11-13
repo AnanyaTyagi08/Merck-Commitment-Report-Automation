@@ -11,12 +11,11 @@ def filter_grt_spmt_report(df: pd.DataFrame) -> pd.DataFrame:
     is_ongoing = df["Commitment Lifecycle State"].eq("Ongoing")
     submitted_outside_us = (
         df["Completed State Qualifier"].eq("Submitted")
-        & ~df["Country Name"].isin(
-            ["United States", "United States of America"]
-        )
+        & ~df["Country Name"].isin(["United States", "United States of America"])
     )
 
     return df.loc[not_completed & (is_ongoing | ~submitted_outside_us)].copy()
+
 
 def filter_overdue_and_six_months(
     df: pd.DataFrame, today: pd.Timestamp | None = None
@@ -28,10 +27,10 @@ def filter_overdue_and_six_months(
     today = today.normalize()
     six_months_out = today + pd.DateOffset(months=6)
 
-    #Column L: Ongoing status
+    # Column L: Ongoing status
     is_ongoing = df["Commitment Lifecycle State"].str.strip() == "Ongoing"
 
-    #Column R: Overdue or due within 6 months
+    # Column R: Overdue or due within 6 months
     df["Working Due Date"] = pd.to_datetime(df["Working Due Date"], errors="coerce")
     is_overdue_or_upcoming = (df["Working Due Date"] < today) | (
         (df["Working Due Date"] >= today) & (df["Working Due Date"] <= six_months_out)
@@ -42,6 +41,7 @@ def filter_overdue_and_six_months(
 
 def populate_working_due_date(df: pd.DataFrame) -> pd.DataFrame:
     """Populate Working Due Date from Commitment Due Date if missing."""
+    # creating copy to avoid altering the original dataframe unexpectedly
     df = df.copy()
     df["Working Due Date"] = df["Working Due Date"].fillna(
         df["Commitment Due Date"]
@@ -53,7 +53,8 @@ def filter_three_year_lookback(
     df: pd.DataFrame,
     today: pd.Timestamp | None = None,
 ) -> pd.DataFrame:
-    """Keep records with Working Due Date in the last three years."""
+    """Keep records with Working Due Date in the last 3 years, sorted ascending."""
+    # creating copy to avoid altering the original dataframe unexpectedly
     df = df.copy()
     df["Working Due Date"] = pd.to_datetime(
         df["Working Due Date"],
