@@ -13,6 +13,7 @@ from src.transforms import (
     populate_working_due_date,
 )
 from src.ui_styles import CUSTOM_CSS, format_file_size
+from src.validation import find_missing_columns, missing_columns_message
 
 
 def main() -> None:
@@ -42,6 +43,12 @@ def main() -> None:
                 #reading file and skipping the first sheet and VReg header row
                 raw_df = pd.read_excel(uploaded_file, sheet_name='Export', header=1)
 
+
+                #stopping with a friendly warning if required columns are missing
+                missing_columns = find_missing_columns(raw_df)
+                if missing_columns:
+                    st.warning(missing_columns_message(missing_columns))
+                    st.stop()
                 #transformation function executing the date changes
                 cleaned_df = populate_working_due_date(raw_df)
                 #filter completed commitments and non-US submitted rows
