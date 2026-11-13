@@ -22,6 +22,8 @@ def test_missing_columns_are_found():
         "Working Due Date",
         "Commitment Lifecycle State",
         "Completed State Qualifier",
+        "Primary Product Family",
+
     ]
 
 

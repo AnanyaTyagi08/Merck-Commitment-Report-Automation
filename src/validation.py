@@ -9,6 +9,8 @@ REQUIRED_COLUMNS = [
     "Commitment Lifecycle State",
     "Completed State Qualifier",
     "Country Name",
+    "Primary Product Family",
+
 ]
 
 
