@@ -1,13 +1,21 @@
 """Streamlit user interface and entry point for Merck Commitment Report Automation."""
 
 import io
+from tempfile import TemporaryDirectory
+from zipfile import ZIP_DEFLATED, ZipFile
 
 import pandas as pd
 import streamlit as st
 
-from src.excel_generator import apply_sheet_layout, highlight_overdue_rows
+from src.excel_generator import (
+    apply_sheet_layout,
+    build_keytruda_workbook,
+    highlight_overdue_rows,
+)
+from src.report_filenames import get_report_filenames
 from src.transforms import (
     filter_grt_spmt_report,
+    filter_keytruda_report,
     filter_overdue_and_six_months,
     filter_three_year_lookback,
     populate_working_due_date,
@@ -32,13 +40,19 @@ def main() -> None:
         st.caption(f"Size: {format_file_size(uploaded_file.size)}")
 
     #clearing memory if a new file is uploaded
-    if uploaded_file and uploaded_file.name != st.session_state.get("last_uploaded_file"):
-        st.session_state.clear()
-        st.session_state["last_uploaded_file"] = uploaded_file.name
+    if uploaded_file is not None:
+        upload_data = uploaded_file.getvalue()
+        if upload_data != st.session_state.get("last_uploaded_file"):
+            st.session_state.pop("reports", None)
+            st.session_state.pop("reports_zip", None)
+            st.session_state["last_uploaded_file"] = upload_data
 
     if st.button("Generate Report", type="primary", disabled=uploaded_file is None):
+        st.session_state.pop("reports", None)
+        st.session_state.pop("reports_zip", None)
         try:
             with st.spinner("Processing spreadsheet..."):
+                report_date = pd.Timestamp.today()
                 #reading file and skipping the first sheet and VReg header row
                 raw_df = pd.read_excel(uploaded_file, sheet_name='Export', header=1)
 
@@ -67,42 +81,47 @@ def main() -> None:
                     apply_sheet_layout(ws2, header_row=1)
                     highlight_overdue_rows(ws2, report_2_df, header_row=1)
 
-                    #saving to session state so that either download button
-                    #can be clicked without having to click 'Generate Report' again
-                st.session_state["report_1_data"] = buffer.getvalue()
-                st.session_state["report_2_data"] = buffer_2.getvalue()
+                # Use the original export so Keytruda keeps its own date rules.
+                keytruda_df = filter_keytruda_report(raw_df, report_date)
+                with TemporaryDirectory() as output_dir:
+                    keytruda_path = build_keytruda_workbook(
+                        keytruda_df, output_dir, report_date
+                    )
+                    keytruda_data = keytruda_path.read_bytes()
+
+                filenames = get_report_filenames(report_date.date())
+                reports = {
+                    filenames["grt_spmt"]: buffer.getvalue(),
+                    filenames["overdue_and_six_months"]: buffer_2.getvalue(),
+                    filenames["keytruda_ongoing"]: keytruda_data,
+                }
+                zip_buffer = io.BytesIO()
+                with ZipFile(zip_buffer, "w", compression=ZIP_DEFLATED) as archive:
+                    for filename, data in reports.items():
+                        archive.writestr(filename, data)
+
+                # Keep downloads available across reruns without processing again.
+                st.session_state["reports"] = reports
+                st.session_state["reports_zip"] = zip_buffer.getvalue()
 
         except Exception as e:
             st.error(f"Error processing file: {e}")
 
-        #Modified: Moved outside the button block so they survive reruns
-    if "report_1_data" in st.session_state and "report_2_data" in st.session_state:
+    if uploaded_file is not None and "reports" in st.session_state:
         st.success("File processed successfully!")
-
-        #Added for TASK-12: Dual Download Buttons
-        current_month_year = pd.Timestamp.now().strftime("%b%Y")
-        col1, col2 = st.columns(2)
-
-        with col1:
-            #first download button to check transformed data
+        for filename, data in st.session_state["reports"].items():
             st.download_button(
-                label="Download Report",
-                data=st.session_state["report_1_data"],
-                file_name="Cleaned_Commitments.xlsx",
+                label=f"Download {filename}",
+                data=data,
+                file_name=filename,
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-
-        with col2:
-            #second download button
-            st.download_button(
-                label="Download Report 2 (Ongoing & Overdue)",
-                data=st.session_state["report_2_data"],
-                file_name=(
-                    "Commitments Overdue and due in the "
-                    f"next 6 months-{current_month_year}.xlsx"
-                ),
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+        st.download_button(
+            label="Download All Reports (.zip)",
+            data=st.session_state["reports_zip"],
+            file_name="Commitment Reports.zip",
+            mime="application/zip",
+        )
 
 
 if __name__ == "__main__":
