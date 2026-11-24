@@ -14,12 +14,8 @@ def test_default_date_uses_today():
 
 def test_exact_report_filenames():
     assert get_report_filenames(date(2026, 10, 22)) == {
-        "grt_spmt": (
-            "Monthly Commitments Report in Support of GRT and SPMT Meetings Oct2026.xlsx"
-        ),
-        "overdue_and_six_months": (
-            "Commitments Overdue and due in the next 6 months-Oct2026.xlsx"
-        ),
+        "grt_spmt": ("Monthly Commitments Report in Support of GRT and SPMT Meetings Oct2026.xlsx"),
+        "overdue_and_six_months": ("Commitments Overdue and due in the next 6 months-Oct2026.xlsx"),
         "keytruda_ongoing": "Commitments Report-Keytruda-Ongoing-Oct2026.xlsx",
         "new_pv": "Commitments Report-New PV Commitments 01-Sep-2026 to 22-Oct-2026.xlsx",
     }

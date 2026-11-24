@@ -4,16 +4,29 @@ from datetime import date, timedelta
 from typing import TypedDict
 
 MONTHS = (
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
 )
+
 
 class ReportFilenames(TypedDict):
     """Filename keys shared by report generation callers."""
+
     grt_spmt: str
     overdue_and_six_months: str
     keytruda_ongoing: str
     new_pv: str
+
 
 def get_report_filenames(today: date | None = None) -> ReportFilenames:
     """Return report filenames using today's date unless a date is supplied."""
